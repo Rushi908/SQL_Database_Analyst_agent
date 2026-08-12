@@ -1,0 +1,82 @@
+agent:
+  name: sql_analyst_agent
+  version: "1.0.0"
+  description: "Production SQL Analyst Agent"
+
+  runtime:
+    temperature: 0
+    streaming: false
+    async_execution: true
+
+  model:
+    provider: azure_openai
+    name: gpt-5-mini
+    base_url: ${AZURE_OPENAI_BASE_URL}
+    api_key: ${AZURE_OPENAI_API_KEY}
+
+  prompt:
+    module: prompt.prompt1
+    variable: prompt1
+
+  memory:
+    enabled: true
+    type: in_memory
+    thread_id_required: true
+
+  cache:
+    enabled: false
+    ttl_seconds: 300
+
+  security:
+    mode: read_only
+
+    allowed_operations:
+    - SELECT
+    - WITH
+    - EXPLAIN
+
+    blocked_operations:
+    - INSERT
+    - UPDATE
+    - DELETE
+    - DROP
+    - ALTER
+    - TRUNCATE
+    - CREATE
+    - GRANT
+    - REVOKE
+    - MERGE
+    - REPLACE
+    - EXEC
+    - CALL
+
+  sql:
+    dialect: mysql
+    max_rows: 100
+    allow_select_star: false
+    require_schema_validation: true
+    require_sql_validation: true
+    require_cost_check: true
+
+  logging:
+    enabled: true
+    level: INFO
+    log_model_calls: true
+    log_tool_calls: true
+    log_sql_generation: true
+    log_sql_validation: true
+    log_execution: true
+
+  observability:
+    enabled: true
+    trace_agent_steps: true
+
+  retry:
+    enabled: true
+    max_attempts: 2
+
+  production:
+    environment: production
+    fail_on_unknown_schema: true
+    fail_on_unsafe_sql: true
+    fail_on_sensitive_data: true
